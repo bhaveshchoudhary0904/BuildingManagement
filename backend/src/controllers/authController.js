@@ -1,6 +1,8 @@
 const authService = require("../services/auth.service");
 const prisma = require("../config/prisma");
 const { success, error } = require("../utils/response");
+const { sendEmail } = require("../services/emailService");
+const { generateOTP } = require("../utils/generateOTP");
 
 /**
  * Register
@@ -329,6 +331,104 @@ const changePassword = async (req, res) => {
 };
 
 /**
+ * Forgot Password - Send OTP to email
+ */
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return error(res, "Email is required.", 400);
+    }
+
+    // Find user by email
+    const user = await prisma.users.findUnique({
+      where: { email: email },
+    });
+
+    if (!user) {
+      // Don't reveal if email exists or not for security
+      return success(res, "If an account with this email exists, a password reset OTP has been sent.");
+    }
+
+    // Generate OTP
+    const otp = generateOTP();
+    const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes expiry
+
+    // Update user with OTP
+    await prisma.users.update({
+      where: { user_id: user.user_id },
+      data: {
+        reset_otp: otp,
+        reset_otp_expires: otpExpiry,
+      },
+    });
+
+    // Send email with OTP
+    const emailSubject = "Password Reset OTP - Building Management System";
+    const emailText = `Your password reset OTP is: ${otp}. This OTP will expire in 15 minutes. If you did not request this, please ignore this email.`;
+
+    await sendEmail(email, emailSubject, emailText);
+
+    return success(res, "If an account with this email exists, a password reset OTP has been sent.");
+  } catch (err) {
+    console.error(err);
+    return error(res, err.message, 500);
+  }
+};
+
+/**
+ * Reset Password with OTP verification
+ */
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, new_password } = req.body;
+
+    if (!email || !otp || !new_password) {
+      return error(res, "Email, OTP, and new password are required.", 400);
+    }
+
+    // Find user by email
+    const user = await prisma.users.findUnique({
+      where: { email: email },
+    });
+
+    if (!user) {
+      return error(res, "Invalid email or OTP.", 400);
+    }
+
+    // Check if OTP is valid and not expired
+    if (!user.reset_otp || user.reset_otp !== otp) {
+      return error(res, "Invalid OTP.", 400);
+    }
+
+    if (new Date() > new Date(user.reset_otp_expires)) {
+      return error(res, "OTP has expired. Please request a new one.", 400);
+    }
+
+    // Hash new password
+    const bcrypt = require("bcrypt");
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+
+    // Update password and clear OTP
+    await prisma.users.update({
+      where: { user_id: user.user_id },
+      data: {
+        password: hashedPassword,
+        reset_otp: null,
+        reset_otp_expires: null,
+        updated_at: new Date(),
+      },
+    });
+
+    return success(res, "Password reset successfully.");
+  } catch (err) {
+    console.error(err);
+    return error(res, err.message, 500);
+  }
+};
+
+/**
  * Logout
  * JWT is stateless, so the frontend should remove the token.
  */
@@ -350,4 +450,6 @@ module.exports = {
   updateEmail,
   updatePhone,
   changePassword,
+  forgotPassword,
+  resetPassword,
 };

@@ -36,4 +36,9 @@ router.put("/phone", authMiddleware, authController.updatePhone);
 
 router.put("/password", authMiddleware, authController.changePassword);
 
+// Password reset endpoints (no auth required)
+router.post("/forgot-password", authController.forgotPassword);
+
+router.post("/reset-password", authController.resetPassword);
+
 module.exports = router;

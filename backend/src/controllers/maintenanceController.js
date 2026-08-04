@@ -75,7 +75,7 @@ exports.createMaintenanceRequest = async (req, res) => {
     }
     
     if (!targetResidentId && req.user?.user_id) {
-      const resident = await prisma.residents.findUnique({
+      const resident = await prisma.residents.findFirst({
         where: { user_id: req.user.user_id },
         select: { resident_id: true, building_id: true },
       });

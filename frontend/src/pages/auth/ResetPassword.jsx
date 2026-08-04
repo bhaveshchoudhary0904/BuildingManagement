@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Mail, ArrowLeft, CheckCircle, X, Loader2 } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Lock, ArrowLeft, CheckCircle, X, Loader2, Eye, EyeOff } from "lucide-react";
 import api from "../../services/api";
 
 const S = {
@@ -79,6 +79,9 @@ const S = {
     letterSpacing: ".04em",
     fontFamily: "'IBM Plex Mono', monospace",
   },
+  fieldInputWrap: {
+    position: "relative",
+  },
   fieldInput: {
     width: "100%",
     padding: "12px 14px",
@@ -95,6 +98,20 @@ const S = {
   fieldInputFocus: {
     borderColor: "#6E83F2",
     boxShadow: "0 0 0 3px rgba(110,131,242,.15)",
+  },
+  eyeBtn: {
+    position: "absolute",
+    right: 13,
+    top: "50%",
+    transform: "translateY(-50%)",
+    background: "none",
+    border: "none",
+    color: "#6A7290",
+    cursor: "pointer",
+    padding: 0,
+    display: "flex",
+    alignItems: "center",
+    lineHeight: 1,
   },
   backBtn: {
     background: "none",
@@ -163,9 +180,19 @@ const S = {
   },
 };
 
-function ForgotPassword() {
+function ResetPassword() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const location = useLocation();
+  const email = location.state?.email || "";
+  
+  const [formData, setFormData] = useState({
+    email: email,
+    otp: "",
+    new_password: "",
+    confirm_password: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -173,13 +200,28 @@ function ForgotPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
+    if (formData.new_password !== formData.confirm_password) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (formData.new_password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await api.post("/auth/forgot-password", { email });
+      await api.post("/auth/reset-password", {
+        email: formData.email,
+        otp: formData.otp,
+        new_password: formData.new_password,
+      });
       setSuccess(true);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to send reset OTP. Please try again.");
+      setError(err.response?.data?.message || "Failed to reset password. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -193,22 +235,15 @@ function ForgotPassword() {
             <div style={S.cardStripe} />
             <div style={{ textAlign: "center", padding: "20px 0" }}>
               <CheckCircle size={64} color="#34D399" style={{ marginBottom: 16 }} />
-              <h2 style={S.title}>Check Your Email</h2>
+              <h2 style={S.title}>Password Reset Successful</h2>
               <p style={S.sub}>
-                We've sent a password reset OTP to {email}. The OTP will expire in 15 minutes.
+                Your password has been successfully reset. You can now log in with your new password.
               </p>
               <button
-                onClick={() => navigate("/reset-password", { state: { email } })}
+                onClick={() => navigate("/login")}
                 style={S.submitBtn}
               >
-                Continue to Reset Password
-              </button>
-              <button
-                onClick={() => navigate("/login")}
-                style={S.backBtn}
-              >
-                <ArrowLeft size={16} />
-                Back to Login
+                Go to Login
               </button>
             </div>
           </div>
@@ -221,28 +256,28 @@ function ForgotPassword() {
     <div style={S.page}>
       <div style={S.inner}>
         <p style={S.eyebrow}>Password Recovery</p>
-        <h1 style={S.title}>Forgot Password?</h1>
+        <h1 style={S.title}>Reset Password</h1>
         <p style={S.sub}>
-          Enter your email address and we'll send you an OTP to reset your password.
+          Enter the OTP sent to your email and create a new password.
         </p>
 
         <div style={S.card}>
           <div style={S.cardStripe} />
           
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/forgot-password")}
             style={S.backBtn}
           >
             <ArrowLeft size={16} />
-            Back to Login
+            Back to Forgot Password
           </button>
 
           <form onSubmit={handleSubmit}>
             <label style={S.fieldLabel}>Email Address</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="your@email.com"
               required
               style={S.fieldInput}
@@ -255,6 +290,81 @@ function ForgotPassword() {
                 e.target.style.boxShadow = "none";
               }}
             />
+
+            <label style={S.fieldLabel}>OTP</label>
+            <input
+              type="text"
+              value={formData.otp}
+              onChange={(e) => setFormData({ ...formData, otp: e.target.value })}
+              placeholder="Enter 6-digit OTP"
+              required
+              maxLength={6}
+              style={S.fieldInput}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#6E83F2";
+                e.target.style.boxShadow = "0 0 0 3px rgba(110,131,242,.15)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "rgba(255,255,255,.09)";
+                e.target.style.boxShadow = "none";
+              }}
+            />
+
+            <label style={S.fieldLabel}>New Password</label>
+            <div style={S.fieldInputWrap}>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={formData.new_password}
+                onChange={(e) => setFormData({ ...formData, new_password: e.target.value })}
+                placeholder="Enter new password"
+                required
+                minLength={6}
+                style={S.fieldInput}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#6E83F2";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(110,131,242,.15)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255,255,255,.09)";
+                  e.target.style.boxShadow = "none";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={S.eyeBtn}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <label style={S.fieldLabel}>Confirm New Password</label>
+            <div style={S.fieldInputWrap}>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={formData.confirm_password}
+                onChange={(e) => setFormData({ ...formData, confirm_password: e.target.value })}
+                placeholder="Confirm new password"
+                required
+                minLength={6}
+                style={S.fieldInput}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#6E83F2";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(110,131,242,.15)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255,255,255,.09)";
+                  e.target.style.boxShadow = "none";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={S.eyeBtn}
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
 
             {error && (
               <div style={S.errorBox}>
@@ -274,10 +384,10 @@ function ForgotPassword() {
               {loading ? (
                 <>
                   <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
-                  Sending OTP...
+                  Resetting Password...
                 </>
               ) : (
-                "Send Reset OTP"
+                "Reset Password"
               )}
             </button>
           </form>
@@ -287,4 +397,4 @@ function ForgotPassword() {
   );
 }
 
-export default ForgotPassword;
+export default ResetPassword;
