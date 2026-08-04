@@ -1,0 +1,297 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model activity_logs {
+  log_id     Int       @id @default(autoincrement())
+  user_id    Int?
+  building_id Int?
+  action     String?   @db.VarChar(255)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+
+  building   buildings? @relation(fields: [building_id], references: [building_id])
+
+  @@index([user_id], map: "user_id")
+  @@index([building_id], map: "building_id")
+}
+
+model buildings {
+  building_id        Int                  @id @default(autoincrement())
+  building_name      String               @db.VarChar(100)
+  address            String?              @db.Text
+  total_floors       Int
+  created_at         DateTime?            @default(now()) @db.Timestamp(0)
+
+  units              units[]
+  admins             users[]
+  activity_logs      activity_logs[]
+  complaints         complaints[]
+  family_members     family_members[]
+  maintenance_requests maintenance_requests[]
+  notices            notices[]
+  notifications      notifications[]
+  payments           payments[]
+  residents          residents[]
+  settings           settings[]
+  visitor_qr_codes   visitor_qr_codes[]
+  visitors           visitors[]
+}
+
+model complaints {
+  complaint_id Int                  @id @default(autoincrement())
+  resident_id  Int
+  building_id  Int
+  title        String               @db.VarChar(255)
+  description  String?              @db.Text
+  category     String?              @db.VarChar(100)
+  priority     complaints_priority? @default(Medium)
+  status       complaints_status?   @default(Pending)
+  assigned_to  Int?
+  created_at   DateTime?            @default(now()) @db.Timestamp(0)
+
+  building     buildings? @relation(fields: [building_id], references: [building_id])
+
+  @@index([assigned_to], map: "assigned_to")
+  @@index([resident_id], map: "resident_id")
+  @@index([building_id], map: "building_id")
+}
+
+model family_members {
+  member_id     Int     @id @default(autoincrement())
+  resident_id   Int
+  building_id   Int
+  member_name   String? @db.VarChar(100)
+  relation_type String? @db.VarChar(50)
+  age           Int?
+
+  building     buildings? @relation(fields: [building_id], references: [building_id])
+
+  @@index([resident_id], map: "resident_id")
+  @@index([building_id], map: "building_id")
+}
+
+model maintenance_requests {
+  request_id  Int                            @id @default(autoincrement())
+  resident_id Int
+  building_id Int
+  category    String?                        @db.VarChar(100)
+  description String?                        @db.Text
+  priority    maintenance_requests_priority? @default(Medium)
+  status      maintenance_requests_status?   @default(Pending)
+  assigned_to Int?
+  created_at  DateTime?                      @default(now()) @db.Timestamp(0)
+
+  building     buildings? @relation(fields: [building_id], references: [building_id])
+
+  @@index([assigned_to], map: "assigned_to")
+  @@index([resident_id], map: "resident_id")
+  @@index([building_id], map: "building_id")
+}
+
+model notices {
+  notice_id   Int                  @id @default(autoincrement())
+  building_id Int
+  title       String               @db.VarChar(255)
+  description String?              @db.Text
+  notice_type notices_notice_type?
+  created_by  Int?
+  created_at  DateTime?            @default(now()) @db.Timestamp(0)
+
+  building     buildings? @relation(fields: [building_id], references: [building_id])
+
+  @@index([created_by], map: "created_by")
+  @@index([building_id], map: "building_id")
+}
+
+model notifications {
+  notification_id Int       @id @default(autoincrement())
+  user_id         Int
+  building_id     Int
+  title           String?   @db.VarChar(255)
+  message         String?   @db.Text
+  is_read         Boolean?  @default(false)
+  created_at      DateTime? @default(now()) @db.Timestamp(0)
+
+  building        buildings? @relation(fields: [building_id], references: [building_id])
+
+  @@index([user_id], map: "user_id")
+  @@index([building_id], map: "building_id")
+}
+
+model payments {
+  payment_id     Int                      @id @default(autoincrement())
+  resident_id    Int
+  building_id    Int
+  amount         Decimal                  @db.Decimal(10, 2)
+  month          String?                  @db.VarChar(20)
+  year           Int?
+  payment_status payments_payment_status? @default(Pending)
+  payment_method String?                  @db.VarChar(50)
+  transaction_id String?                  @db.VarChar(100)
+  upi_id         String?                  @db.VarChar(100)
+  notes          String?                  @db.Text
+  bill_source    String?                  @db.VarChar(20) @default("resident")
+  payment_date   DateTime?                @db.DateTime(0)
+  created_at     DateTime?                @default(now()) @db.Timestamp(0)
+
+  building       buildings? @relation(fields: [building_id], references: [building_id])
+
+  @@index([resident_id], map: "resident_id")
+  @@index([building_id], map: "building_id")
+}
+
+model residents {
+  resident_id       Int       @id @default(autoincrement())
+  user_id           Int?
+  unit_id           Int
+  building_id       Int
+  emergency_contact String?   @db.VarChar(15)
+  move_in_date      DateTime? @db.Date
+  created_at        DateTime? @default(now()) @db.Timestamp(0)
+
+  unit              units     @relation(fields: [unit_id], references: [unit_id])
+  user              users?    @relation(fields: [user_id], references: [user_id])
+  building         buildings? @relation(fields: [building_id], references: [building_id])
+
+  @@index([unit_id], map: "unit_id")
+  @@index([user_id], map: "user_id")
+  @@index([building_id], map: "building_id")
+}
+
+model roles {
+  role_id   Int    @id @default(autoincrement())
+  role_name String @unique(map: "role_name") @db.VarChar(50)
+  users     users[]
+}
+
+model settings {
+  setting_id   Int    @id @default(autoincrement())
+  building_id  Int?
+  setting_key String @db.VarChar(100)
+  setting_value String @db.Text
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+
+  building     buildings? @relation(fields: [building_id], references: [building_id])
+
+  @@index([building_id], map: "building_id")
+  @@unique([building_id, setting_key], map: "unique_building_setting")
+}
+
+model units {
+  unit_id          Int                     @id @default(autoincrement())
+  building_id      Int
+  floor_number     Int
+  unit_number      String                  @db.VarChar(20)
+  occupancy_status units_occupancy_status? @default(Vacant)
+
+  building         buildings               @relation(fields: [building_id], references: [building_id])
+  residents        residents[]
+
+  @@index([building_id], map: "building_id")
+}
+
+model users {
+  user_id       Int       @id @default(autoincrement())
+  name          String    @db.VarChar(100)
+  phone_number  String    @unique(map: "phone_number") @db.VarChar(15)
+  email         String?   @unique(map: "email") @db.VarChar(100)
+  password      String    @db.VarChar(255)
+  role_id       Int
+  building_id   Int?      @db.Int
+  profile_image String?   @db.VarChar(255)
+  is_active     Boolean?  @default(true)
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+
+  residents     residents[]
+  building      buildings? @relation(fields: [building_id], references: [building_id])
+  role          roles     @relation(fields: [role_id], references: [role_id])
+
+  @@index([role_id], map: "role_id")
+  @@index([building_id], map: "building_id")
+}
+
+model visitor_qr_codes {
+  qr_id       Int       @id @default(autoincrement())
+  visitor_id  Int
+  building_id Int
+  qr_token    String?   @unique(map: "qr_token")
+  expiry_time DateTime? @db.DateTime(0)
+
+  building    buildings? @relation(fields: [building_id], references: [building_id])
+
+  @@index([visitor_id], map: "visitor_id")
+  @@index([building_id], map: "building_id")
+}
+
+model visitors {
+  visitor_id   Int              @id @default(autoincrement())
+  resident_id  Int?
+  building_id  Int
+  visitor_name String?          @db.VarChar(100)
+  phone_number String?          @db.VarChar(15)
+  purpose      String?          @db.VarChar(255)
+  status       visitors_status? @default(Approved)
+  check_in     DateTime?        @db.DateTime(0)
+  check_out    DateTime?        @db.DateTime(0)
+  delivery_type String?         @db.VarChar(50)
+
+  building     buildings? @relation(fields: [building_id], references: [building_id])
+
+  @@index([resident_id], map: "resident_id")
+  @@index([building_id], map: "building_id")
+}
+
+enum notices_notice_type {
+  Water
+  Electricity
+  Maintenance
+  Emergency
+  General
+}
+
+enum maintenance_requests_priority {
+  Low
+  Medium
+  High
+}
+
+enum units_occupancy_status {
+  Vacant
+  Occupied
+}
+
+enum payments_payment_status {
+  Pending
+  Paid
+}
+
+enum maintenance_requests_status {
+  Pending
+  In_Progress @map("In Progress")
+  Completed
+}
+
+enum visitors_status {
+  Approved
+  Checked_In  @map("Checked In")
+  Checked_Out @map("Checked Out")
+}
+
+enum complaints_priority {
+  Low
+  Medium
+  High
+}
+
+enum complaints_status {
+  Pending
+  In_Progress @map("In Progress")
+  Resolved
+  Closed
+}
