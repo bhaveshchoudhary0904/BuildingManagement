@@ -50,4 +50,11 @@ app.get("/", (req, res) => {
   });
 });
 
+app.get("/api/test", (req, res) => {
+  res.json({
+    success: true,
+    message: "Backend is working"
+  });
+});
+
 module.exports = app;
