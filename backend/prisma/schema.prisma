@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -17,8 +17,8 @@ model activity_logs {
 
   building   buildings? @relation(fields: [building_id], references: [building_id])
 
-  @@index([user_id], map: "user_id")
-  @@index([building_id], map: "building_id")
+  @@index([user_id], map: "activity_logs_user_id")
+  @@index([building_id], map: "activity_logs_building_id")
 }
 
 model buildings {
@@ -67,9 +67,9 @@ model complaints {
 
   building     buildings? @relation(fields: [building_id], references: [building_id])
 
-  @@index([assigned_to], map: "assigned_to")
-  @@index([resident_id], map: "resident_id")
-  @@index([building_id], map: "building_id")
+  @@index([assigned_to], map: "complaints_assigned_to")
+  @@index([resident_id], map: "complaints_resident_id")
+  @@index([building_id], map: "complaints_building_id")
 }
 
 model family_members {
@@ -82,8 +82,8 @@ model family_members {
 
   building     buildings? @relation(fields: [building_id], references: [building_id])
 
-  @@index([resident_id], map: "resident_id")
-  @@index([building_id], map: "building_id")
+  @@index([resident_id], map: "family_members_resident_id")
+  @@index([building_id], map: "family_members_building_id")
 }
 
 model maintenance_requests {
@@ -99,9 +99,9 @@ model maintenance_requests {
 
   building     buildings? @relation(fields: [building_id], references: [building_id])
 
-  @@index([assigned_to], map: "assigned_to")
-  @@index([resident_id], map: "resident_id")
-  @@index([building_id], map: "building_id")
+  @@index([assigned_to], map: "maintenance_requests_assigned_to")
+  @@index([resident_id], map: "maintenance_requests_resident_id")
+  @@index([building_id], map: "maintenance_requests_building_id")
 }
 
 model notices {
@@ -115,8 +115,8 @@ model notices {
 
   building     buildings? @relation(fields: [building_id], references: [building_id])
 
-  @@index([created_by], map: "created_by")
-  @@index([building_id], map: "building_id")
+  @@index([created_by], map: "notices_created_by")
+  @@index([building_id], map: "notices_building_id")
 }
 
 model notifications {
@@ -130,8 +130,8 @@ model notifications {
 
   building        buildings? @relation(fields: [building_id], references: [building_id])
 
-  @@index([user_id], map: "user_id")
-  @@index([building_id], map: "building_id")
+  @@index([user_id], map: "notifications_user_id")
+  @@index([building_id], map: "notifications_building_id")
 }
 
 model payments {
@@ -147,7 +147,7 @@ model payments {
   upi_id               String?                  @db.VarChar(100)
   notes                String?                  @db.Text
   bill_source          String?                  @db.VarChar(20) @default("resident")
-  payment_date         DateTime?                @db.DateTime(0)
+  payment_date         DateTime?                @db.Timestamp(0)
   created_at           DateTime?                @default(now()) @db.Timestamp(0)
   razorpay_order_id    String?                  @unique
   razorpay_payment_id  String?                  @unique
@@ -173,14 +173,14 @@ model payments {
   corpus_fund          Decimal?                @db.Decimal(10, 2) @default(0)
   other_charges        Decimal?                @db.Decimal(10, 2) @default(0)
   amenities_charge     Decimal?                @db.Decimal(10, 2) @default(0)
-  due_date             DateTime?                @db.DateTime(0)
+  due_date             DateTime?                @db.Timestamp(0)
   is_late              Boolean?                @default(false)
 
   building             buildings? @relation(fields: [building_id], references: [building_id])
   charge_breakdowns    payment_charge_breakdowns[]
 
-  @@index([resident_id], map: "resident_id")
-  @@index([building_id], map: "building_id")
+  @@index([resident_id], map: "payments_resident_id")
+  @@index([building_id], map: "payments_building_id")
 }
 
 model residents {
@@ -196,9 +196,9 @@ model residents {
   user              users?    @relation(fields: [user_id], references: [user_id])
   building         buildings? @relation(fields: [building_id], references: [building_id])
 
-  @@index([unit_id], map: "unit_id")
-  @@index([user_id], map: "user_id")
-  @@index([building_id], map: "building_id")
+  @@index([unit_id], map: "residents_unit_id")
+  @@index([user_id], map: "residents_user_id")
+  @@index([building_id], map: "residents_building_id")
 }
 
 model roles {
@@ -216,7 +216,7 @@ model settings {
 
   building     buildings? @relation(fields: [building_id], references: [building_id])
 
-  @@index([building_id], map: "building_id")
+  @@index([building_id], map: "settings_building_id")
   @@unique([building_id, setting_key], map: "unique_building_setting")
 }
 
@@ -235,7 +235,7 @@ model units {
   building         buildings               @relation(fields: [building_id], references: [building_id])
   residents        residents[]
 
-  @@index([building_id], map: "building_id")
+  @@index([building_id], map: "units_building_id")
 }
 
 model users {
@@ -245,11 +245,11 @@ model users {
   email              String?   @unique(map: "email") @db.VarChar(100)
   password           String    @db.VarChar(255)
   role_id            Int
-  building_id        Int?      @db.Int
+  building_id        Int?
   profile_image      String?   @db.VarChar(255)
   is_active          Boolean?  @default(true)
   reset_otp          String?   @db.VarChar(10)
-  reset_otp_expires  DateTime? @db.DateTime(0)
+  reset_otp_expires  DateTime? @db.Timestamp(0)
   created_at         DateTime? @default(now()) @db.Timestamp(0)
   updated_at         DateTime? @default(now()) @db.Timestamp(0)
 
@@ -257,8 +257,8 @@ model users {
   building           buildings? @relation(fields: [building_id], references: [building_id])
   role               roles     @relation(fields: [role_id], references: [role_id])
 
-  @@index([role_id], map: "role_id")
-  @@index([building_id], map: "building_id")
+  @@index([role_id], map: "users_role_id")
+  @@index([building_id], map: "users_building_id")
 }
 
 model visitor_qr_codes {
@@ -266,12 +266,12 @@ model visitor_qr_codes {
   visitor_id  Int
   building_id Int
   qr_token    String?   @unique(map: "qr_token")
-  expiry_time DateTime? @db.DateTime(0)
+  expiry_time DateTime? @db.Timestamp(0)
 
   building    buildings? @relation(fields: [building_id], references: [building_id])
 
-  @@index([visitor_id], map: "visitor_id")
-  @@index([building_id], map: "building_id")
+  @@index([visitor_id], map: "visitor_qr_codes_visitor_id")
+  @@index([building_id], map: "visitor_qr_codes_building_id")
 }
 
 model payment_charge_breakdowns {
@@ -296,14 +296,14 @@ model visitors {
   phone_number String?          @db.VarChar(15)
   purpose      String?          @db.VarChar(255)
   status       visitors_status? @default(Approved)
-  check_in     DateTime?        @db.DateTime(0)
-  check_out    DateTime?        @db.DateTime(0)
+  check_in     DateTime?        @db.Timestamp(0)
+  check_out    DateTime?        @db.Timestamp(0)
   delivery_type String?         @db.VarChar(50)
 
   building     buildings? @relation(fields: [building_id], references: [building_id])
 
-  @@index([resident_id], map: "resident_id")
-  @@index([building_id], map: "building_id")
+  @@index([resident_id], map: "visitors_resident_id")
+  @@index([building_id], map: "visitors_building_id")
 }
 
 enum notices_notice_type {

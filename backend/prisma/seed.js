@@ -133,6 +133,7 @@ async function main() {
     create: {
       user_id: residentUser.user_id,
       unit_id: unit.unit_id,
+      building_id: building.building_id,
       emergency_contact: "9876543213",
       move_in_date: new Date(),
     },
