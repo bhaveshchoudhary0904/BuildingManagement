@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const app = require("./app");
+const app = require("./src/app");
 
 // Only start the server if this file is run directly (not imported by Vercel)
 if (require.main === module) {
