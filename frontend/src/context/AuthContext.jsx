@@ -16,22 +16,27 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
+      console.log("🔍 loadUser token:", token);
+
       try {
         const response = await api.get("/auth/me");
+
+        console.log("✅ /auth/me SUCCESS:", response.data);
 
         const buildingData = localStorage.getItem("building");
         const building = buildingData ? JSON.parse(buildingData) : null;
 
         setUser({ ...response.data.data, building });
       } catch (error) {
-        console.error(error);
+        console.error("❌ /auth/me FAILED:", error.response?.data || error);
 
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("building");
+        // TEMPORARILY DON'T DELETE THE TOKEN
+        // localStorage.removeItem("token");
+        // localStorage.removeItem("user");
+        // localStorage.removeItem("building");
 
-        setToken(null);
-        setUser(null);
+        // setToken(null);
+        // setUser(null);
       } finally {
         setLoading(false);
       }
@@ -43,19 +48,35 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       console.log("🔐 Attempting login with:", email);
+
       const response = await api.post("/auth/login", {
         email,
         password,
       });
 
-      console.log("✅ Login response:", response.data);
+      console.log("✅ FULL LOGIN RESPONSE:", response.data);
+
       const { token, user, building } = response.data.data;
+
+      console.log("🔑 TOKEN RECEIVED:", token);
+
+      if (!token) {
+        console.error("❌ NO TOKEN RECEIVED FROM BACKEND");
+        return {
+          success: false,
+          message: "Login succeeded but no authentication token was received.",
+        };
+      }
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("building", JSON.stringify(building));
 
-      console.log("💾 Token stored in localStorage");
+      console.log(
+        "💾 TOKEN STORED:",
+        localStorage.getItem("token") ? "YES" : "NO"
+      );
+
       setToken(token);
       setUser({ ...user, building });
 
@@ -65,11 +86,11 @@ export const AuthProvider = ({ children }) => {
         building,
       };
     } catch (error) {
-      console.error("❌ Login failed:", error.response?.data);
+      console.error("❌ Login failed:", error.response?.data || error);
+
       return {
         success: false,
-        message:
-          error.response?.data?.message || "Login failed",
+        message: error.response?.data?.message || "Login failed",
       };
     }
   };
