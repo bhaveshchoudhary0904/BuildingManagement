@@ -42,17 +42,20 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log("🔐 Attempting login with:", email);
       const response = await api.post("/auth/login", {
         email,
         password,
       });
 
+      console.log("✅ Login response:", response.data);
       const { token, user, building } = response.data.data;
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("building", JSON.stringify(building));
 
+      console.log("💾 Token stored in localStorage");
       setToken(token);
       setUser({ ...user, building });
 
@@ -62,6 +65,7 @@ export const AuthProvider = ({ children }) => {
         building,
       };
     } catch (error) {
+      console.error("❌ Login failed:", error.response?.data);
       return {
         success: false,
         message:
