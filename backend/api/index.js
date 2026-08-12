@@ -1,5 +1,6 @@
-const app = require("../src/app");
+require("dotenv").config();
 
+const app = require("../src/app");
 module.exports = (req, res) => {
   // Handle OPTIONS requests for preflight
   if (req.method === 'OPTIONS') {
