@@ -1,8 +1,9 @@
 require("dotenv").config();
 
 const app = require("../src/app");
+
 module.exports = (req, res) => {
-  // Handle OPTIONS requests for preflight
+  // Handle OPTIONS requests for preflight before routing
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
