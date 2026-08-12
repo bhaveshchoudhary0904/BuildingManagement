@@ -21,7 +21,6 @@ const app = express();
 const allowedOrigins = [
   "https://building-management-wwyj-gu64uvdl0-nest-os.vercel.app",
   "https://building-management-wwyj-nwfefq0ns-nest-os.vercel.app",
-  "https://building-management-e2fyr3rgd-nest-os.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
 ];
@@ -29,6 +28,8 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests without an Origin header
+      // such as Postman/server-to-server requests.
       if (!origin) {
         return callback(null, true);
       }
@@ -37,7 +38,7 @@ app.use(
         return callback(null, true);
       }
 
-      console.log("❌ CORS blocked origin:", origin);
+      console.log("❌ CORS blocked:", origin);
       return callback(new Error("Not allowed by CORS"));
     },
 
@@ -46,9 +47,9 @@ app.use(
     methods: [
       "GET",
       "HEAD",
+      "POST",
       "PUT",
       "PATCH",
-      "POST",
       "DELETE",
       "OPTIONS",
     ],
@@ -60,19 +61,11 @@ app.use(
   })
 );
 
-// Handle OPTIONS requests explicitly for preflight
-app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.sendStatus(204);
-});
-
 app.use(express.json());
 
 app.use("/uploads", express.static("uploads"));
 
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/residents", residentRoutes);
@@ -88,6 +81,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/developer", developerRoutes);
 
+// Root
 app.get("/", (req, res) => {
   res.json({
     success: true,
@@ -95,6 +89,7 @@ app.get("/", (req, res) => {
   });
 });
 
+// Test
 app.get("/api/test", (req, res) => {
   res.json({
     success: true,
