@@ -369,7 +369,7 @@ const SecurityDashboard = () => {
 
   const loadVisitors = async () => {
     try {
-      const response = await api.get('/visitors');
+      const response = await api.get('/api/visitors');
       const visitors = response.data.data || [];
       setPending(visitors.filter(v => v.status === 'Approved' && !v.check_in));
       setHistory(visitors.filter(v => v.check_in || v.check_out));
@@ -398,7 +398,7 @@ const SecurityDashboard = () => {
 
   const allowEntry = async (id) => {
     try {
-      await api.post(`/visitors/${id}/check-in`);
+      await api.post(`/api/visitors/${id}/check-in`);
       await loadVisitors();
     } catch (error) {
       console.error('Error checking in visitor:', error);
@@ -408,10 +408,10 @@ const SecurityDashboard = () => {
   const submitWalkin = async (walkinName, walkinUnit) => {
     if (!walkinName || !walkinUnit) return;
     try {
-      const residentsResponse = await api.get('/residents');
+      const residentsResponse = await api.get('/api/residents');
       const residents = residentsResponse.data.data || [];
       const resident = residents[0];
-      await api.post('/visitors', {
+      await api.post('/api/visitors', {
         visitor_name: walkinName,
         resident_id: resident?.resident_id,
         purpose: 'Walk-in',

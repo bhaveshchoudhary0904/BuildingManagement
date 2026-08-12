@@ -379,12 +379,12 @@ const Payments = () => {
     try {
       setLoading(true);
       // Get resident info first
-      const residentResponse = await api.get(`/residents/user/${user.user_id}`);
+      const residentResponse = await api.get(`/api/residents/user/${user.user_id}`);
       const resident = residentResponse.data.data;
       
       if (resident) {
         setIsResident(true);
-        const response = await api.get(`/payments/resident/${resident.resident_id}`);
+        const response = await api.get(`/api/payments/resident/${resident.resident_id}`);
         setPayments(response.data.data || []);
       } else {
         console.log("No resident record found for user");
@@ -409,7 +409,7 @@ const Payments = () => {
 
   const showQRCode = async (payment) => {
     try {
-      const response = await api.get(`/payments/${payment.payment_id}/qr`);
+      const response = await api.get(`/api/payments/${payment.payment_id}/qr`);
       setQrData(response.data.data);
       setQrModalOpen(true);
     } catch (error) {
@@ -423,7 +423,7 @@ const Payments = () => {
       return;
     }
     try {
-      await api.post(`/payments/${payment.payment_id}/confirm`, {
+      await api.post(`/api/payments/${payment.payment_id}/confirm`, {
         payment_method: "QR Code",
       });
       alert("Payment confirmed successfully!");
@@ -456,7 +456,7 @@ const Payments = () => {
     }
 
     try {
-      await api.post(`/payments/${selectedPayment.payment_id}/confirm`, {
+      await api.post(`/api/payments/${selectedPayment.payment_id}/confirm`, {
         payment_method: manualPaymentForm.payment_method,
         transaction_id: manualPaymentForm.transaction_id,
         upi_id: manualPaymentForm.upi_id,
@@ -478,7 +478,7 @@ const Payments = () => {
       setRazorpaySuccess(false);
 
       // Get resident info
-      const residentResponse = await api.get(`/residents/user/${user.user_id}`);
+      const residentResponse = await api.get(`/api/residents/user/${user.user_id}`);
       const resident = residentResponse.data.data;
 
       if (!resident) {
@@ -486,7 +486,7 @@ const Payments = () => {
       }
 
       // Create Razorpay order
-      const orderResponse = await api.post('/payments/create-order', {
+      const orderResponse = await api.post('/api/payments/create-order', {
         resident_id: resident.resident_id,
         building_id: resident.building_id,
         amount: payment.amount,
@@ -511,7 +511,7 @@ const Payments = () => {
           handler: async function (response) {
             try {
               // Verify payment on backend
-              await api.post('/payments/verify', {
+              await api.post('/api/payments/verify', {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
@@ -565,7 +565,7 @@ const Payments = () => {
       return;
     }
     try {
-      const response = await api.post("/payments/bill/create", {
+      const response = await api.post("/api/payments/bill/create", {
         amount: parseFloat(billForm.amount),
         month: billForm.month,
         year: parseInt(billForm.year),

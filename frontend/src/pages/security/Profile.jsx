@@ -21,7 +21,7 @@ const Profile = () => {
   const loadProfile = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/auth/me');
+      const response = await api.get('/api/auth/me');
       const userData = response.data.data?.user || response.data.data;
       if (userData) {
         setForm({
@@ -50,7 +50,7 @@ const Profile = () => {
     try {
       setSaving(true);
       setSaved(false);
-      await api.put('/auth/profile', form);
+      await api.put('/api/auth/profile', form);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch (error) {

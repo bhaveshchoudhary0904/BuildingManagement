@@ -107,10 +107,10 @@ function AddDeliveryModal({ onClose, onSuccess, T }) {
     if (!form.visitor_name || !form.unit) return setError('Delivery person name and flat are required.');
     setLoading(true); setError('');
     try {
-      const residentsRes = await api.get('/residents');
+      const residentsRes = await api.get('/api/residents');
       const residents = residentsRes.data.data || [];
       const matched = residents.find(r => r.unit?.unit_number === form.unit.trim()) || residents[0];
-      await api.post('/visitors', {
+      await api.post('/api/visitors', {
         visitor_name: form.visitor_name.trim(),
         phone_number: form.phone_number.trim() || null,
         purpose: `Delivery – ${form.deliveryType}${form.notes ? `: ${form.notes}` : ''}`,
@@ -210,7 +210,7 @@ const Delivery = () => {
   const load = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/visitors');
+      const res = await api.get('/api/visitors');
       const all = res.data.data || [];
       // Filter deliveries by purpose containing "Delivery"
       setDeliveries(all.filter(v => (v.purpose || '').toLowerCase().includes('delivery')));
@@ -224,7 +224,7 @@ const Delivery = () => {
   const handleRefresh = () => { setRefreshSpin(true); setHeaderVisible(false); load().then(() => setTimeout(() => setRefreshSpin(false), 600)); };
 
   const handleMarkDelivered = async (id) => {
-    try { await api.post(`/visitors/${id}/check-in`); await load(); } catch (e) { console.error(e); }
+    try { await api.post(`/api/visitors/${id}/check-in`); await load(); } catch (e) { console.error(e); }
   };
 
   const filtered = deliveries.filter(d =>

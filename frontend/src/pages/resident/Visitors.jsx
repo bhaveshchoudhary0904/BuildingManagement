@@ -134,7 +134,7 @@ function AddVisitorModal({ onClose, onSuccess, residentId, T }) {
     if (!form.visitor_name) return setError('Visitor name is required.');
     setLoading(true); setError('');
     try {
-      await api.post('/visitors', {
+      await api.post('/api/visitors', {
         visitor_name: form.visitor_name.trim(),
         phone_number: form.phone_number.trim() || null,
         purpose: form.purpose.trim() || 'Visit',
@@ -207,7 +207,7 @@ const Visitors = () => {
   const loadVisitors = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/visitors/resident/${user.resident_id}`);
+      const response = await api.get(`/api/visitors/resident/${user.resident_id}`);
       setVisitors(response.data.data || []);
     } catch (err) {
       console.error("Visitors Error:", err);

@@ -180,7 +180,7 @@ const Payments = () => {
   const loadResidents = async () => {
     try {
       setLoadingResidents(true);
-      const response = await api.get("/residents");
+      const response = await api.get("/api/residents");
       setResidents(response.data.data || []);
     } catch (err) {
       console.error("Residents Error:", err);
@@ -210,7 +210,7 @@ const Payments = () => {
       return;
     }
     try {
-      const response = await api.post("/payments/bill/create-for-resident", {
+      const response = await api.post("/api/payments/bill/create-for-resident", {
         resident_id: parseInt(billForm.resident_id),
         amount: parseFloat(billForm.amount),
         month: billForm.month,

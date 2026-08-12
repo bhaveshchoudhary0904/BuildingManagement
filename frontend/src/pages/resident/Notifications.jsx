@@ -99,7 +99,7 @@ const Notifications = () => {
   const loadNotifications = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/notifications/user/${user.user_id}`);
+      const response = await api.get(`/api/notifications/user/${user.user_id}`);
       setNotifications(response.data.data || []);
     } catch (err) {
       console.error("Notifications Error:", err);

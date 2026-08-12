@@ -230,7 +230,7 @@ const Resident = () => {
   const loadDashboard = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/resident/dashboard");
+      const response = await api.get("/api/resident/dashboard");
       setStats(response.data.data);
     } catch (err) {
       console.error("Resident Dashboard Error:", err);

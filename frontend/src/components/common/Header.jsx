@@ -70,7 +70,7 @@ const Header = () => {
         formData.append('profile_image', profileForm.profile_image);
       }
       
-      await api.put('/auth/profile', formData, {
+      await api.put('/api/auth/profile', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -94,7 +94,7 @@ const Header = () => {
     }
     try {
       setSaving(true);
-      await api.put('/auth/password', {
+      await api.put('/api/auth/password', {
         old_password: passwordForm.old_password,
         new_password: passwordForm.new_password,
       });
@@ -112,7 +112,7 @@ const Header = () => {
     e.preventDefault();
     try {
       setSaving(true);
-      await api.put('/auth/email', {
+      await api.put('/api/auth/email', {
         new_email: emailForm.new_email,
         otp: emailForm.otp,
       });
@@ -131,7 +131,7 @@ const Header = () => {
     e.preventDefault();
     try {
       setSaving(true);
-      await api.put('/auth/phone', {
+      await api.put('/api/auth/phone', {
         new_phone: phoneForm.new_phone,
         otp: phoneForm.otp,
       });

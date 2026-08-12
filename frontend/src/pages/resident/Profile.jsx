@@ -50,7 +50,7 @@ const Profile = () => {
   const loadProfile = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/auth/me');
+      const response = await api.get('/api/auth/me');
       const userData = response.data.data?.user || response.data.data;
       if (userData) {
         setForm({
@@ -63,7 +63,7 @@ const Profile = () => {
         // Load resident details if available
         if (userData.resident_id) {
           try {
-            const residentRes = await api.get(`/residents/${userData.resident_id}`);
+            const residentRes = await api.get(`/api/residents/${userData.resident_id}`);
             const resident = residentRes.data.data;
             if (resident) {
               setResidentData({
@@ -97,7 +97,7 @@ const Profile = () => {
     try {
       setSaving(true);
       setSaved(false);
-      await api.put('/auth/profile', form);
+      await api.put('/api/auth/profile', form);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch (error) {
@@ -119,7 +119,7 @@ const Profile = () => {
     }
     try {
       setSaving(true);
-      await api.put('/auth/password', {
+      await api.put('/api/auth/password', {
         old_password: passwordForm.old_password,
         new_password: passwordForm.new_password,
       });
@@ -137,7 +137,7 @@ const Profile = () => {
     e.preventDefault();
     try {
       setSaving(true);
-      await api.put('/auth/email', {
+      await api.put('/api/auth/email', {
         new_email: emailForm.new_email,
         otp: emailForm.otp,
       });
@@ -156,7 +156,7 @@ const Profile = () => {
     e.preventDefault();
     try {
       setSaving(true);
-      await api.put('/auth/phone', {
+      await api.put('/api/auth/phone', {
         new_phone: phoneForm.new_phone,
         otp: phoneForm.otp,
       });

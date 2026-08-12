@@ -225,7 +225,7 @@ const Complaints = () => {
 
   const updateComplaint = async () => {
     try {
-      await api.put(`/complaints/${selectedComplaint.complaintId}`, updateForm);
+      await api.put(`/api/complaints/${selectedComplaint.complaintId}`, updateForm);
       alert("Complaint updated successfully!");
       setUpdateModalOpen(false);
       await loadComplaints();

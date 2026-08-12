@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
       console.log("🔍 loadUser token:", token);
 
       try {
-        const response = await api.get("/auth/me");
+        const response = await api.get("/api/auth/me");
 
         console.log("✅ /auth/me SUCCESS:", response.data);
 
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log("🔐 Attempting login with:", email);
 
-      const response = await api.post("/auth/login", {
+      const response = await api.post("/api/auth/login", {
         email,
         password,
       });

@@ -401,7 +401,7 @@ const AdminResidents = () => {
   const loadResidents = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/admin/residents");
+      const response = await api.get("/api/admin/residents");
       setResidents(response.data.data || []);
     } catch (err) {
       console.error("Residents Error:", err);
@@ -412,7 +412,7 @@ const AdminResidents = () => {
 
   const loadUnits = async () => {
     try {
-      const response = await api.get("/flats");
+      const response = await api.get("/api/flats");
       setUnits(response.data.data || []);
     } catch (err) {
       console.error("Units Error:", err);
@@ -437,7 +437,7 @@ const AdminResidents = () => {
     if (!residentToDelete) return;
 
     try {
-      const response = await api.delete(`/residents/${residentToDelete.resident_id}`);
+      const response = await api.delete(`/api/residents/${residentToDelete.resident_id}`);
       if (response.data.success) {
         alert("Resident deleted successfully!");
         setDeleteConfirmOpen(false);
@@ -462,7 +462,7 @@ const AdminResidents = () => {
 
     try {
       setCreatingResident(true);
-      const response = await api.post("/residents", {
+      const response = await api.post("/api/residents", {
         name: addResidentForm.name.trim(),
         email: addResidentForm.email.trim(),
         phone_number: addResidentForm.phone_number.trim(),

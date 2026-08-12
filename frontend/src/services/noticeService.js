@@ -1,11 +1,11 @@
 import api from './api';
 
 const noticeService = {
-  getNotices: () => api.get('/notices'),
-  getNotice: (id) => api.get(`/notices/${id}`),
-  createNotice: (data) => api.post('/notices', data),
-  updateNotice: (id, data) => api.put(`/notices/${id}`, data),
-  deleteNotice: (id) => api.delete(`/notices/${id}`),
+  getNotices: () => api.get('/api/notices'),
+  getNotice: (id) => api.get(`/api/notices/${id}`),
+  createNotice: (data) => api.post('/api/notices', data),
+  updateNotice: (id, data) => api.put(`/api/notices/${id}`, data),
+  deleteNotice: (id) => api.delete(`/api/notices/${id}`),
 };
 
 export default noticeService;

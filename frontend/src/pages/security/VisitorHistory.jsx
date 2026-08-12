@@ -143,7 +143,7 @@ const VisitorHistory = () => {
   const handleRefresh = () => { setRefreshSpin(true); setHeaderVisible(false); load().then(() => setTimeout(() => setRefreshSpin(false), 600)); };
 
   const handleCheckOut = async (id) => {
-    try { await api.post(`/visitors/${id}/check-out`); await load(); } catch (e) { console.error(e); }
+    try { await api.post(`/api/visitors/${id}/check-out`); await load(); } catch (e) { console.error(e); }
   };
 
   const filtered = visitors.filter(v => {

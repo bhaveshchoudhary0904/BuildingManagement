@@ -24,7 +24,7 @@ const RecentActivity = () => {
     try {
       setLoading(true);
 
-      const { data } = await api.get("/dashboard/recent-activity");
+      const { data } = await api.get("/api/dashboard/recent-activity");
 
       setData(data.data);
 

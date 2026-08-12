@@ -130,7 +130,7 @@ const ComplaintHistory = () => {
   const loadComplaints = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/complaints/resident/${user.resident_id}`);
+      const response = await api.get(`/api/complaints/resident/${user.resident_id}`);
       setComplaints(response.data.data || []);
     } catch (err) {
       console.error("Complaints Error:", err);

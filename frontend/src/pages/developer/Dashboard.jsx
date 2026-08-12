@@ -36,7 +36,7 @@ const DeveloperDashboard = () => {
 
   const fetchBuildings = async () => {
     try {
-      const response = await api.get('/developer/buildings');
+      const response = await api.get('/api/developer/buildings');
       setBuildings(response.data.data);
     } catch (error) {
       console.error('Error fetching buildings:', error);
@@ -53,7 +53,7 @@ const DeveloperDashboard = () => {
         address: buildingForm.address,
         total_floors: parseInt(buildingForm.total_floors)
       };
-      await api.post('/developer/buildings', buildingData);
+      await api.post('/api/developer/buildings', buildingData);
       setShowBuildingModal(false);
       setBuildingForm({ building_name: '', address: '', total_floors: '' });
       fetchBuildings();
@@ -70,7 +70,7 @@ const DeveloperDashboard = () => {
         ...adminForm,
         building_id: adminForm.building_id ? parseInt(adminForm.building_id) : undefined
       };
-      await api.post('/developer/admins', adminData);
+      await api.post('/api/developer/admins', adminData);
       setShowAdminModal(false);
       setAdminForm({ name: '', email: '', phone_number: '', password: '', building_id: '' });
       fetchBuildings();
@@ -86,7 +86,7 @@ const DeveloperDashboard = () => {
     }
     
     try {
-      await api.delete(`/developer/buildings/${buildingId}`);
+      await api.delete(`/api/developer/buildings/${buildingId}`);
       alert('Building deleted successfully');
       fetchBuildings();
     } catch (error) {
@@ -111,14 +111,14 @@ const DeveloperDashboard = () => {
       const currentAdmins = buildings.find(b => b.building_id === parseInt(changeAdminForm.building_id))?.admins || [];
       
       for (const admin of currentAdmins) {
-        await api.put(`/developer/admins/${admin.user_id}`, {
+        await api.put(`/api/developer/admins/${admin.user_id}`, {
           building_id: null,
         });
       }
       
       // Assign new admin to building if selected
       if (changeAdminForm.admin_id) {
-        await api.put(`/developer/admins/${changeAdminForm.admin_id}`, {
+        await api.put(`/api/developer/admins/${changeAdminForm.admin_id}`, {
           building_id: parseInt(changeAdminForm.building_id),
         });
       }
@@ -136,7 +136,7 @@ const DeveloperDashboard = () => {
 
   const handleRemoveAdmin = async (adminId) => {
     try {
-      await api.put(`/developer/admins/${adminId}`, {
+      await api.put(`/api/developer/admins/${adminId}`, {
         building_id: null,
       });
       fetchBuildings();

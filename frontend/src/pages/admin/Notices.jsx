@@ -217,7 +217,7 @@ const Notices = () => {
 
     try {
       setCreating(true);
-      const response = await api.post("/notices", formData);
+      const response = await api.post("/api/notices", formData);
       if (response.data.success) {
         alert("Notice created successfully!");
         setModalOpen(false);

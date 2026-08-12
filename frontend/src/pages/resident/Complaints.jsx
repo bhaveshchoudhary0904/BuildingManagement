@@ -26,7 +26,7 @@ const Complaints = () => {
     try {
       setLoading(true);
       // Get resident info first
-      const residentResponse = await api.get(`/residents/user/${user.user_id}`);
+      const residentResponse = await api.get(`/api/residents/user/${user.user_id}`);
       const resident = residentResponse.data.data;
       
       if (!resident) {
@@ -35,7 +35,7 @@ const Complaints = () => {
         return;
       }
 
-      const complaintResponse = await api.post("/complaints", {
+      const complaintResponse = await api.post("/api/complaints", {
         ...formData,
         resident_id: resident.resident_id,
       });

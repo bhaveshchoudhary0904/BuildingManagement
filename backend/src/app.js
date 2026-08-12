@@ -18,22 +18,56 @@ const developerRoutes = require("./routes/developerRoutes");
 
 const app = express();
 
-app.use(cors({
-  origin: ['https://building-management-wwyj-nwfefq0ns-nest-os.vercel.app', 'https://building-management-e2fyr3rgd-nest-os.vercel.app', 'http://localhost:5173', 'http://localhost:3000'],
-  credentials: true,
-  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+const allowedOrigins = [
+  "https://building-management-wwyj-gu64uvdl0-nest-os.vercel.app",
+  "https://building-management-wwyj-nwfefq0ns-nest-os.vercel.app",
+  "https://building-management-e2fyr3rgd-nest-os.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.log("❌ CORS blocked origin:", origin);
+      return callback(new Error("Not allowed by CORS"));
+    },
+
+    credentials: true,
+
+    methods: [
+      "GET",
+      "HEAD",
+      "PUT",
+      "PATCH",
+      "POST",
+      "DELETE",
+      "OPTIONS",
+    ],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
+  })
+);
+
+// Explicitly handle CORS preflight
+app.options("*", cors());
 
 app.use(express.json());
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static('uploads'));
+app.use("/uploads", express.static("uploads"));
 
-// Authentication Routes
 app.use("/api/auth", authRoutes);
-
-// Dashboard Routes
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/residents", residentRoutes);
 app.use("/api/flats", flatRoutes);
@@ -48,18 +82,17 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/developer", developerRoutes);
 
-
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "Building Management System API is running successfully."
+    message: "Building Management System API is running successfully.",
   });
 });
 
 app.get("/api/test", (req, res) => {
   res.json({
     success: true,
-    message: "Backend is working"
+    message: "Backend is working",
   });
 });
 

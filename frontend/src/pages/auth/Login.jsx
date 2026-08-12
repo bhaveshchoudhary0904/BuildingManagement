@@ -313,7 +313,7 @@ function CreateAccountModal({ onClose }) {
   const fetchBuildings = async () => {
     try {
       setLoadingBuildings(true);
-      const response = await api.get("/buildings/public");
+      const response = await api.get("/api/buildings/public");
       setBuildings(response.data.data || []);
     } catch (err) {
       console.error("Failed to fetch buildings:", err);
@@ -370,7 +370,7 @@ function CreateAccountModal({ onClose }) {
         ...(role === "SECURITY" ? { building_id: form.building_id } : {}),
       };
 
-      const res = await api.post("/auth/register", payload);
+      const res = await api.post("/api/auth/register", payload);
 
       // backend's success() helper returns { success: true, message, data }
       if (res.data?.success === false) {

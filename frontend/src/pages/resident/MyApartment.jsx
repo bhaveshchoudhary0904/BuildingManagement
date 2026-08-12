@@ -17,7 +17,7 @@ const MyApartment = () => {
   const loadResidentData = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/residents/user/${user.user_id}`);
+      const response = await api.get(`/api/residents/user/${user.user_id}`);
       setResidentData(response.data.data);
     } catch (err) {
       console.error("Error loading resident data:", err);

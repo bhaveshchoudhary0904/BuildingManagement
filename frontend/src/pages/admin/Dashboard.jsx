@@ -210,7 +210,7 @@ const Dashboard = () => {
   const loadDashboard = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/dashboard");
+      const response = await api.get("/api/dashboard");
       setStats(response.data.data);
     } catch (err) {
       console.error("Dashboard Error:", err);

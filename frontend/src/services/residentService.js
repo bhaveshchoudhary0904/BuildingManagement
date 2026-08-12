@@ -1,11 +1,11 @@
 import api from './api';
 
 const residentService = {
-  getResidents: () => api.get('/residents'),
-  getResident: (id) => api.get(`/residents/${id}`),
-  updateResident: (id, data) => api.put(`/residents/${id}`, data),
-  deleteResident: (id) => api.delete(`/residents/${id}`),
-  createResident: (data) => api.post('/residents', data),
+  getResidents: () => api.get('/api/residents'),
+  getResident: (id) => api.get(`/api/residents/${id}`),
+  updateResident: (id, data) => api.put(`/api/residents/${id}`, data),
+  deleteResident: (id) => api.delete(`/api/residents/${id}`),
+  createResident: (data) => api.post('/api/residents', data),
 };
 
 export default residentService;
